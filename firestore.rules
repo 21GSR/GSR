@@ -1,0 +1,51 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Users Collection
+    match /Users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isAuthenticated() && request.auth.uid == userId;
+      allow delete: if false;
+    }
+
+    // Shopker Pricing Collection
+    match /ShopkerPricing/{shopkerId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthenticated() && request.auth.uid == shopkerId;
+      allow delete: if isAuthenticated() && request.auth.uid == shopkerId;
+    }
+
+    // Requests Collection
+    match /Requests/{requestId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.customer_id == request.auth.uid;
+      // Allow customer or shopkers to update (e.g. placing bids updates lowest bid, closing request on timer end)
+      allow update: if isAuthenticated();
+      allow delete: if isAuthenticated() && resource.data.customer_id == request.auth.uid;
+    }
+
+    // Bids Collection
+    match /Bids/{bidId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.shopker_id == request.auth.uid;
+      allow update: if isAuthenticated() && resource.data.shopker_id == request.auth.uid;
+      allow delete: if isAuthenticated() && resource.data.shopker_id == request.auth.uid;
+    }
+
+    // Notifications or activity logs
+    match /Notifications/{notifId} {
+      allow read, write: if isAuthenticated();
+    }
+  }
+}

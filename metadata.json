@@ -1,0 +1,6 @@
+{
+  "name": "Interior Design & Renovation Quote Marketplace",
+  "description": "Full-stack marketplace connecting Customers and Shopker interior contractors with real-time bidding, price-per-sqft estimation, timer countdowns, and verification.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
